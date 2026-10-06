@@ -5,168 +5,267 @@
 - Maya Cockerham
 - Liban Mohamed
 
+## Repository
+
+GitHub Repository:  
+https://github.com/mcockerham26/digital_pet_inclass07
+
 ## Project Overview
 
-This project is a Flutter Digital Pet application created by Maya Cockerham and Liban Mohamed. The goal of the app is to take care of a virtual pet while managing its happiness, hunger, and energy. The pet's mood changes based on its happiness level, and the user can interact with the pet using different care actions and activities.
+This project is a Digital Pet application created using Flutter and Dart. The app allows the user to take care of a virtual pet by managing its happiness, hunger, and energy.
+
+The pet's mood changes based on its happiness level. The app uses both a written mood label and a color tint so that color is not the only way the pet's mood is communicated.
 
 ## Core Features
+
+The Digital Pet app includes:
 
 - Editable pet name
 - Happiness meter from 0–100
 - Hunger meter from 0–100
-- Readable pet mood
-- Pet image changes tint depending on mood
-- Feed button
-- Play button
+- Energy meter from 0–100
+- Happy, Neutral, and Unhappy mood states
+- ColorFiltered pet image
+- Feed action
+- Play action
+- Rest action
+- Run activity
+- Sleep activity
 - Reset button
-- Hunger automatically increases every 30 seconds
-- Win and loss conditions
-- Care buttons are disabled after a win or loss until the pet is reset
-- Values are kept between 0 and 100
+- Automatic hunger timer
+- Win condition
+- Loss condition
+- Meter values limited to 0–100
+- Timer cleanup when the screen is disposed
 
 ## Mood System
 
-The pet has three different moods based on happiness:
+The pet's mood is determined by its happiness level:
 
-- Happy: Happiness is greater than 70
-- Neutral: Happiness is between 30 and 70
-- Unhappy: Happiness is below 30
+- Happiness above 70 = Happy / Green
+- Happiness from 30–70 = Neutral / Yellow
+- Happiness below 30 = Unhappy / Red
 
-The pet image uses `ColorFiltered` with `BlendMode.modulate` to visually show the mood. Green represents a happy mood, yellow represents a neutral mood, and red represents an unhappy mood.
+The mood is displayed as text along with the color change.
 
-The mood is also displayed as text so that color is not the only way the user can tell how the pet is feeling.
+The pet image uses `ColorFiltered` with `BlendMode.modulate` to apply the mood tint.
 
-## Timer and Game Rules
+## Care Actions
 
-The hunger meter increases by 5 every 30 seconds.
+### Feed
 
-If hunger would increase above 100, hunger stays at 100 and happiness decreases by 20.
+The Feed button reduces the pet's hunger. If the pet's hunger becomes less than 50 after feeding, its happiness also increases.
 
-The player wins when happiness stays above 80 continuously for three minutes.
+### Play
 
-The player loses when hunger reaches 100 and happiness is 10 or lower.
+The Play button increases happiness, but it also increases hunger and uses energy.
 
-The Reset Pet button restores the pet to its starting values and restarts the hunger timer.
+If the pet does not have enough energy, the app displays a message instead of allowing the pet to play.
+
+### Rest
+
+The Rest button restores energy while slightly increasing hunger.
 
 ## Advanced Feature 1 – Energy System
 
-We added an Energy System to make the Digital Pet more interactive.
+For one of our advanced features, we added an Energy system.
 
-The pet starts with an energy level and different actions affect its energy. Playing with the pet uses energy. If the pet does not have enough energy, the app prevents the action and displays a message telling the user that the pet needs to rest.
+Energy stays between 0 and 100. Playing and running use energy, while resting and sleeping restore energy.
 
-Resting allows the pet to regain energy.
+If the pet does not have enough energy to complete an activity, the activity is prevented and the user receives a message.
 
-The energy value is kept between 0 and 100.
+This adds another value that the user has to manage while taking care of the pet.
 
 ## Advanced Feature 2 – Activity Selection
 
-We also added an Activities section with Run and Sleep.
+We also added additional activities for the pet.
 
 ### Run
 
-Running affects several pet values:
-
-- Increases happiness
-- Increases hunger
-- Decreases energy
-
-If the pet does not have enough energy, the Run activity cannot be completed and the user receives a message.
+Running uses energy and increases hunger, but it also increases happiness.
 
 ### Sleep
 
-Sleeping also affects multiple values:
+Sleeping restores a larger amount of energy while slightly increasing hunger.
 
-- Restores energy
-- Slightly increases happiness
-- Increases hunger
+These activities give the user additional ways to interact with the pet.
 
-Adding activities made the different pet needs work together instead of each meter operating independently.
+## Hunger Timer
+
+The app uses a periodic timer that runs every 30 seconds.
+
+Every 30 seconds, hunger increases by 5 while the game is active.
+
+If hunger is already at 100 when another hunger cycle occurs, hunger stays at 100 and happiness decreases by 20.
+
+The hunger value is kept between 0 and 100.
+
+## Win Condition
+
+The pet's happiness must stay **above 80 continuously for three minutes** to win.
+
+Exactly 80 does not qualify for the win condition.
+
+If happiness drops to 80 or below before the three minutes are complete, the win timer is canceled.
+
+When the win condition is successfully reached, the app displays the winning message and stops the hunger timer.
+
+## Loss Condition
+
+The game is lost when:
+
+- Hunger reaches 100
+- Happiness reaches 10 or below
+
+When the loss condition is reached, the game displays a Game Over message.
+
+The care and activity buttons are disabled after a win or loss until the user resets the pet.
+
+## Reset Behavior
+
+The Reset Pet button restores the original pet state:
+
+- Happiness = 50
+- Hunger = 50
+- Energy = 70
+- Pet name = Pip
+- Win state = false
+- Loss state = false
+
+Reset also cancels the previous timers and starts a new hunger timer so that only one hunger timer is active.
 
 ## State Management
 
-The application uses a `StatefulWidget` and `setState()` to update the user interface whenever the pet's state changes.
+The Digital Pet screen uses a `StatefulWidget` because the pet's information changes while the app is running.
 
-The main state values include:
+The application uses `setState()` when happiness, hunger, energy, or the game outcome changes. This causes Flutter to rebuild the interface and display the new values.
 
-- Pet name
-- Happiness
-- Hunger
-- Energy
-- Win status
-- Game-over status
+The meter values are clamped between 0 and 100 so they cannot go outside of the allowed range.
 
-Timers are used for the automatic hunger increase and the three-minute win condition.
+The `TextEditingController` used for the pet's name is disposed when the screen is removed.
 
-The timers are cancelled when they are no longer needed, and the `TextEditingController` used for the pet name is disposed of properly.
+The hunger and win timers are also canceled in `dispose()` to prevent them from continuing after the screen has been removed.
 
 ## Testing
 
-We manually tested the following parts of the application:
+The application was tested for the main interface and state behaviors, including:
 
-- Changing the pet's name
-- Feeding the pet
-- Playing with the pet
-- Resting
-- Running
-- Sleeping
 - Happiness staying between 0 and 100
 - Hunger staying between 0 and 100
 - Energy staying between 0 and 100
-- Mood text changing with happiness
-- Pet color changing with happiness
-- Reset restoring the starting values
-- Hunger automatically increasing over time
-- Buttons responding correctly when the pet has low energy
+- Feed button behavior
+- Play button behavior
+- Rest button behavior
+- Run activity
+- Sleep activity
+- Reset behavior
+- Hunger timer behavior
+- Win timer logic
+- Loss condition logic
+- Neutral mood display
+- Happy mood display
+- Unhappy mood display
+- Mood text appearing with the color tint
+- Timer cleanup
+- Application build and launch
 
-We also checked the Flutter project using:
+The project was also checked using:
 
-`flutter analyze`
+```bash
+flutter analyze
+```
 
-Final result:
+The final analysis completed with:
 
-`No issues found!`
+```text
+No issues found!
+```
 
-We successfully created the release APK using:
+## App Screenshots
 
-`flutter build apk --release`
+### Main Digital Pet Screen
 
-## Pet Asset
+This screenshot shows the main Digital Pet interface with the pet image, mood, Happiness, Hunger, Energy, care buttons, activities, and reset button.
 
-The project uses one pet PNG located at:
+![Main Digital Pet Screen](screenshots/main_app.png)
 
-`assets/pet.png`
+### Neutral Mood
 
-The image is registered in `pubspec.yaml` and displayed in the application using `Image.asset()` and `ColorFiltered`.
+Happiness between 30 and 70 displays the Neutral mood with a yellow tint.
 
-### Asset Attribution
+![Neutral Mood](screenshots/neutral_mood.png)
 
-Pet image source/license: Add the original source and license information here before final submission.
+### Happy Mood
+
+Happiness above 70 displays the Happy mood with a green tint.
+
+![Happy Mood](screenshots/happy_mood.png)
+
+### Unhappy Mood
+
+Happiness below 30 displays the Unhappy mood with a red tint.
+
+![Unhappy Mood](screenshots/unhappy_mood.png)
 
 ## Team Contributions
 
 ### Maya Cockerham
 
-- Worked on the Digital Pet interface and overall app layout
-- Helped implement the happiness, hunger, and energy systems
-- Worked on the pet mood and image behavior
-- Helped implement the care actions and activity features
-- Tested the application and verified app behavior
-- Helped debug errors and prepare the final release build
-- Helped prepare the GitHub repository for submission
+- Worked on the application interface and layout
+- Worked with the Happiness, Hunger, and Energy state values
+- Worked on the mood display and pet image
+- Worked on care and activity functionality
+- Tested and debugged application behavior
+- Worked with the GitHub repository and project documentation
 
 ### Liban Mohamed
 
-- Collaborated on the Digital Pet application
-- Helped develop and review the application features
-- Worked on pet interaction and state behavior
-- Helped test the application's functionality
-- Assisted with debugging and completing the project
-- Helped review the final application for submission
+- Collaborated on the Digital Pet project
+- Helped develop and review project features
+- Helped review state behavior
+- Participated in testing and debugging
+- Helped review the completed application
 
-## Collaboration
+## Setup Instructions
 
-Maya Cockerham and Liban Mohamed worked together on the Digital Pet project. We collaborated on the design, functionality, testing, and debugging of the application. We reviewed the project together to make sure the required features worked correctly and that the application was ready for submission.
+Get the Flutter project dependencies:
 
-## GitHub Repository
+```bash
+flutter pub get
+```
 
-https://github.com/mcockerham26/digital_pet_inclass07
+Run the application:
+
+```bash
+flutter run
+```
+
+Check the project for analysis issues:
+
+```bash
+flutter analyze
+```
+
+Build the Android release APK:
+
+```bash
+flutter build apk --release
+```
+
+The release APK is generated inside:
+
+```text
+build/app/outputs/flutter-apk/app-release.apk
+```
+
+## Pet Image Asset
+
+The pet image is stored at:
+
+```text
+assets/pet.png
+```
+
+The image is registered in `pubspec.yaml` and displayed using `Image.asset()` inside a `ColorFiltered` widget.
+
+**Asset Source/License:** Add the original source and license information for the pet image before final submission.
